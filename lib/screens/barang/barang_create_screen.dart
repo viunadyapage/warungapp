@@ -10,9 +10,11 @@ class BarangCreateScreen extends StatefulWidget {
 }
 
 class _BarangCreateScreenState extends State<BarangCreateScreen> {
-  final Color primaryColor = const Color(0xFFaa3437);   // background merah
-  final Color appBarColor = const Color(0xFF95d1fc);    // biru muda
-  final Color textColor = const Color(0xFF25231E);
+  // Palet Warna (Konsisten)
+  final Color blue = const Color(0xff95d1fc);
+  final Color primaryDark = const Color(0xFF1565C0);
+  final Color softBackground = const Color(0xFFEFF3FF);
+  final Color textDark = const Color(0xFF1A1B1E);
 
   final TextEditingController kodeController = TextEditingController();
   final TextEditingController namaController = TextEditingController();
@@ -37,6 +39,8 @@ class _BarangCreateScreenState extends State<BarangCreateScreen> {
 
     setState(() => loading = false);
 
+    if (!mounted) return;
+
     if (res.error == null) {
       Navigator.pop(context, true);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,74 +56,220 @@ class _BarangCreateScreenState extends State<BarangCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
-
+      backgroundColor: softBackground,
       appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: const Text("Tambah Barang", style: TextStyle(color: Colors.black)),
-      ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-
-        child: Card(
-          color: Colors.white,
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        backgroundColor: blue,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          "Tambah Barang Baru",
+          style: TextStyle(
+            fontFamily: "CrimsonPro",
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            // Header Icon (Visual Appeal)
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                        color: blue.withOpacity(0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10))
+                  ],
+                ),
+                child: Icon(Icons.add_business_rounded, size: 40, color: blue),
+              ),
+            ),
 
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+            // Form Container
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFA6B4C8).withOpacity(0.2),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _inputLabel("Informasi Dasar"),
+                  const SizedBox(height: 12),
+                  
+                  _buildTextField(
+                    controller: kodeController,
+                    hint: "Kode Barang (Opsional)",
+                    icon: Icons.qr_code_rounded,
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  _buildTextField(
+                    controller: namaController,
+                    hint: "Nama Barang",
+                    icon: Icons.label_outline_rounded,
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  _buildTextField(
+                    controller: kategoriController,
+                    hint: "Kategori",
+                    icon: Icons.category_outlined,
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  _buildTextField(
+                    controller: stokController,
+                    hint: "Stok Awal",
+                    icon: Icons.inventory_2_outlined,
+                    isNumber: true,
+                  ),
 
-            child: Column(
-              children: [
-                _field("Kode Barang", kodeController),
-                _field("Nama Barang", namaController),
-                _field("Kategori", kategoriController),
-                _field("Stok", stokController, number: true),
-                _field("Harga Beli", hargaBeliController, number: true),
-                _field("Harga Jual", hargaJualController, number: true),
+                  const SizedBox(height: 24),
+                  const Divider(), // Garis pemisah standar
+                  const SizedBox(height: 24),
 
-                const SizedBox(height: 20),
+                  _inputLabel("Detail Harga"),
+                  const SizedBox(height: 12),
 
-                loading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appBarColor,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: _createBarang,
-                        child: const Text(
-                          "Simpan",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                          ),
+                  // Row untuk Harga (Split View)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildTextField(
+                          controller: hargaBeliController,
+                          hint: "Harga Beli",
+                          icon: Icons.arrow_downward_rounded,
+                          isNumber: true,
+                          prefixText: "Rp ",
                         ),
                       ),
-              ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _buildTextField(
+                          controller: hargaJualController,
+                          hint: "Harga Jual",
+                          icon: Icons.arrow_upward_rounded,
+                          isNumber: true,
+                          prefixText: "Rp ",
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
+
+            const SizedBox(height: 32),
+
+            // Tombol Simpan
+            loading
+                ? Center(child: CircularProgressIndicator(color: blue))
+                : SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryDark,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 8,
+                        shadowColor: primaryDark.withOpacity(0.4),
+                      ),
+                      onPressed: _createBarang,
+                      child: const Text(
+                        "Simpan Barang",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontFamily: "CrimsonPro",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _field(String label, TextEditingController c, {bool number = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+  // --------------------------
+  // WIDGET HELPERS (Gaya Baru)
+  // --------------------------
+
+  Widget _inputLabel(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontFamily: "CrimsonPro",
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        color: const Color.fromARGB(255, 0, 0, 0),
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool isNumber = false,
+    String? prefixText,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F7FA), // Background abu-abu soft
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: TextField(
-        controller: c,
-        keyboardType: number ? TextInputType.number : TextInputType.text,
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        style: TextStyle(
+          fontFamily: "CrimsonPro",
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textDark,
+        ),
         decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: textColor),
-          border: const OutlineInputBorder(),
+          prefixText: prefixText,
+          prefixIcon: Icon(icon, color: const Color.fromARGB(255, 0, 0, 0), size: 22),
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: blue, width: 1.5),
+          ),
         ),
       ),
     );

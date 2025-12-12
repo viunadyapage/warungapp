@@ -11,17 +11,16 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final Color primaryColor = const Color(0xFFaa3437);   // background
-  final Color appBarColor = const Color(0xFF95d1fc);    // top bar
-  final Color textColor = const Color(0xFF25231E);
+  final Color blueMain = const Color(0xFF95D1FC);   // Biru utama
+  final Color blueAccent = const Color(0xFF6BB8F5); // Biru lebih kuat
 
   User? user;
   bool loading = false;
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passController = TextEditingController();
-  TextEditingController confirmController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passController = TextEditingController();
+  final TextEditingController confirmController = TextEditingController();
 
   @override
   void initState() {
@@ -34,8 +33,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (res.error == null) {
       user = res.data as User;
-      nameController.text = user!.name ?? "";
-      emailController.text = user!.email ?? "";
+      nameController.text = user?.name ?? "";
+      emailController.text = user?.email ?? "";
       setState(() {});
     } else {
       ScaffoldMessenger.of(context)
@@ -69,52 +68,108 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
-      resizeToAvoidBottomInset: true,
-
+      // -------------------------------
+      // APPBAR
+      // -------------------------------
       appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: const Text("Edit Profil"),
+        backgroundColor: blueMain,
+        elevation: 0,
+        title: const Text(
+          "Edit Profil",
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Card(
-          elevation: 5,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+      // -------------------------------
+      // BACKGROUND GRADIENT
+      // -------------------------------
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF95D1FC), // biru dominan
+              Color(0xFFB7E3FF), // biru lebih soft
+              Colors.white,      // putih (paling bawah)
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.55, 1.0], // biru dominan 55%
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+        ),
 
-            child: Column(
-              children: [
-                _field("Nama", nameController),
-                _field("Email", emailController),
-                _field("Password Baru (opsional)", passController, isPassword: true),
-                _field("Konfirmasi Password", confirmController, isPassword: true),
+        // -------------------------------
+        // FORM CARD
+        // -------------------------------
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Card(
+            elevation: 7,
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+            ),
 
-                const SizedBox(height: 20),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
 
-                loading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appBarColor,
-                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+              child: Column(
+                children: [
+                  _inputField(
+                    label: "Nama",
+                    controller: nameController,
+                    icon: Icons.person,
+                  ),
+
+                  _inputField(
+                    label: "Email",
+                    controller: emailController,
+                    icon: Icons.email,
+                  ),
+
+                  _inputField(
+                    label: "Password Baru (opsional)",
+                    controller: passController,
+                    icon: Icons.lock,
+                    isPassword: true,
+                  ),
+
+                  _inputField(
+                    label: "Konfirmasi Password",
+                    controller: confirmController,
+                    icon: Icons.lock_reset,
+                    isPassword: true,
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  loading
+                      ? const CircularProgressIndicator()
+                      : SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _saveProfile,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: blueMain,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text(
+                              "Simpan Perubahan",
+                              style: TextStyle(
+                                fontSize: 17,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
-                        onPressed: _saveProfile,
-                        child: const Text(
-                          "Simpan Perubahan",
-                          style: TextStyle(color: Colors.black, fontSize: 16),
-                        ),
-                      ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -122,16 +177,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _field(String label, TextEditingController c, {bool isPassword = false}) {
+  // -------------------------------
+  // INPUT FIELD COMPONENT
+  // -------------------------------
+  Widget _inputField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    bool isPassword = false,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 18),
       child: TextField(
-        controller: c,
+        controller: controller,
         obscureText: isPassword,
         decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.black87),
+
           labelText: label,
-          labelStyle: TextStyle(color: textColor),
-          border: const OutlineInputBorder(),
+          labelStyle: const TextStyle(color: Colors.black87),
+
+          filled: true,
+          fillColor: const Color(0xFFF8F8F8),
+
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.black26),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: blueAccent, width: 2),
+          ),
         ),
       ),
     );
