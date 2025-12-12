@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import '../../../services/auth_service.dart';
 import '../../../models/api_response.dart';
 import '../home/home_screen.dart';
@@ -11,17 +13,23 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final Color primaryColor = const Color(0xFFaa3437);   // background merah
-  final Color appBarColor = const Color(0xFF95d1fc);    // top bar biru muda
-  final Color textColor = const Color(0xFF25231E);      // warna teks gelap
-  final Color buttonColor = const Color(0xFF608baa);    // biru aksen
+  final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passController = TextEditingController();
 
   bool loading = false;
+  bool obscurePass = true;
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passController = TextEditingController();
+  @override
+  void dispose() {
+    emailController.dispose();
+    passController.dispose();
+    super.dispose();
+  }
 
   void _loginUser() async {
+    if (!_formKey.currentState!.validate()) return;
+
     setState(() => loading = true);
 
     ApiResponse res = await AuthService().login(
@@ -45,93 +53,137 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
-
-      appBar: AppBar(
-        backgroundColor: appBarColor,
-        title: const Text("Masuk", style: TextStyle(color: Colors.black)),
-        centerTitle: true,
-        elevation: 2,
-      ),
-
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-
-          child: Column(
-            children: [
-              // ================== IKON APLIKASI ==================
-              Image.asset(
-                "assets/icons/transicon.png",
-                width: 130,
-                height: 130,
-              ),
-
-              const SizedBox(height: 25),
-
-              // ================== CARD FORM LOGIN ==================
-              Card(
-                color: Colors.white,
-                elevation: 6,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+      body: Container(
+        width: double.infinity,
+ decoration: const BoxDecoration(
+  gradient: LinearGradient(
+    colors: [
+      Color(0xFF95D1FC), // biru utama (paling dominan)
+      Color(0xFFFFFFFF), // putih lembut
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    stops: [0.0, 0.9], // biru 90%, putih 10%
+  ),
+),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                Image.asset(
+                  "assets/icons/transicon.png",
+                  width: 120,
+                  height: 120,
                 ),
 
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
+                const SizedBox(height: 20),
 
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: "Email",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-
-                      const SizedBox(height: 15),
-
-                      TextField(
-                        controller: passController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: "Password",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-
-                      const SizedBox(height: 25),
-
-                      loading
-                          ? const CircularProgressIndicator()
-                          : ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: buttonColor,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                  horizontal: 30,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: _loginUser,
-                              child: const Text(
-                                "Masuk",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontFamily: "CrimsonPro",
-                                ),
-                              ),
-                            ),
-                    ],
+                Text(
+                  "Masuk",
+                  style: GoogleFonts.poppins(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 20),
+
+                Card(
+                  elevation: 6,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Email
+                          TextFormField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              labelText: "Email",
+                              labelStyle: GoogleFonts.poppins(),
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return "Email tidak boleh kosong";
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Password
+                          TextFormField(
+                            controller: passController,
+                            obscureText: obscurePass,
+                            decoration: InputDecoration(
+                              labelText: "Password",
+                              labelStyle: GoogleFonts.poppins(),
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  obscurePass
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() => obscurePass = !obscurePass);
+                                },
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return "Password tidak boleh kosong";
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: 28),
+
+                          loading
+                              ? const CircularProgressIndicator()
+                              : SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: _loginUser,
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      backgroundColor: const Color(0xFF1E88E5),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Masuk",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -30,10 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  
+  google_fonts: ^6.0.0
   http: ^1.1.0
   shared_preferences: ^2.2.2
   cupertino_icons: ^1.0.8
+  lottie: ^3.3.2
 
 dev_dependencies:
   flutter_test:
