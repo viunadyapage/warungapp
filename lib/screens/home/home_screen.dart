@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../barang/barang_list_screen.dart';
 import '../profile/edit_profile_screen.dart';
+import '../barang-masuk/barang_masuk_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -40,24 +41,46 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 20), // Tambahan jarak agar tidak terlalu mepet atas
+                  
+                  // HEADER (Opsional: Jika ingin menampilkan tombol logout/profil di atas)
+                  // Row(mainAxisAlignment: MainAxisAlignment.end, children: [_headerIconButton(Icons.logout, isLogout: true)]),
+                  
+                  const SizedBox(height: 20),
+
+                  // MENU CARD 1: Barang Masuk
                   _menuCard(
                     context,
                     label: "Barang Masuk",
                     icon: Icons.inventory_2_outlined,
                     onTap: () {
-                      // TODO: Barang masuk screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BarangMasukListScreen(),
+                        ),
+                      );
                     },
                   ),
 
+                  const SizedBox(height: 15),
+
+                  // MENU CARD 2: Barang Keluar
                   _menuCard(
                     context,
                     label: "Barang Keluar",
                     icon: Icons.logout_outlined,
                     onTap: () {
                       // TODO: Barang keluar screen
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Fitur Barang Keluar belum tersedia")),
+                      );
                     },
                   ),
 
+                  const SizedBox(height: 15),
+
+                  // MENU CARD 3: Lihat Barang
                   _menuCard(
                     context,
                     label: "Lihat Barang",
@@ -72,6 +95,9 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
 
+                  const SizedBox(height: 15),
+
+                  // MENU CARD 4: Edit Profil
                   _menuCard(
                     context,
                     label: "Edit Profil",
@@ -88,8 +114,8 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -111,22 +137,7 @@ class HomeScreen extends StatelessWidget {
             TextButton(
               child: const Text("Keluar", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontFamily: "CrimsonPro")),
               onPressed: () async {
-                // Tutup Dialog
                 Navigator.pop(context);
-
-                // 1. Panggil Service Logout (Aktifkan baris ini jika Service sudah dibuat)
-                // await AuthService().logout(); 
-
-                // 2. Pindah ke Login Screen
-                // Ganti 'LoginScreen()' dengan nama class halaman login-mu
-                /* Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
-                );
-                */
-                
-                // HANYA UNTUK TESTING (Hapus jika LoginScreen sudah ada)
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Berhasil Logout (Simulasi)")));
               },
             ),
@@ -138,7 +149,6 @@ class HomeScreen extends StatelessWidget {
 
   // --- WIDGET HELPER ---
 
-  // Helper untuk tombol header (Profil & Logout) agar kodenya rapi
   Widget _headerIconButton(IconData icon, {bool isLogout = false}) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -197,7 +207,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _menuButton({
+  // PERBAIKAN: Nama diubah jadi _menuCard dan ditambahkan parameter context
+  Widget _menuCard(
+    BuildContext context, {
     required String label,
     required IconData icon,
     required VoidCallback onTap,
@@ -230,18 +242,18 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Row( // Saya ganti Column jadi Row biar lebih rapi ke samping (opsional)
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Icon(
                     icon,
-                    size: 52,
+                    size: 32, // Ukuran icon saya sesuaikan sedikit
                     color: accentBlue,
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(width: 20),
                   Text(
                     label,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: darkText,
                       fontWeight: FontWeight.w600,
