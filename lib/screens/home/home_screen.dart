@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../barang/barang_list_screen.dart';
 import '../profile/edit_profile_screen.dart';
 import '../barang-masuk/barang_masuk_list_screen.dart';
+import '../barang_keluar/bk_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -71,9 +72,11 @@ class HomeScreen extends StatelessWidget {
                     label: "Barang Keluar",
                     icon: Icons.logout_outlined,
                     onTap: () {
-                      // TODO: Barang keluar screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Fitur Barang Keluar belum tersedia")),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BKListScreen(),
+                        ),
                       );
                     },
                   ),

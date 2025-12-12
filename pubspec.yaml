@@ -82,7 +82,7 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-  - family: Crimson Pro
+  - family: CrimsonPro
     fonts:
       - asset: assets/fonts/static/CrimsonPro-Regular.ttf
       - asset: assets/fonts/static/CrimsonPro-Bold.ttf

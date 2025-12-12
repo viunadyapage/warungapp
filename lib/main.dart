@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'Crimson Pro',
+        fontFamily: 'CrimsonPro',
       ),
       home: const SplashScreen(),
     );
