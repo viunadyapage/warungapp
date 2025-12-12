@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../barang/barang_list_screen.dart';
 import '../profile/edit_profile_screen.dart';
+import '../barang-masuk/barang_masuk_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -43,7 +44,12 @@ class HomeScreen extends StatelessWidget {
                     label: "Barang Masuk",
                     icon: Icons.inventory_2_outlined,
                     onTap: () {
-                      // TODO: Barang masuk screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BarangMasukListScreen(),
+                        ),
+                      );
                     },
                   ),
 
