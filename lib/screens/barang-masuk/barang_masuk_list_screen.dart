@@ -4,6 +4,7 @@ import '../../models/barang_masuk.dart';
 import '../../services/barang_masuk_service.dart';
 import 'barang_masuk_screen.dart'; 
 import 'barang_masuk_edit_screen.dart'; 
+import 'barang_masuk_detail_screen.dart';
 
 class BarangMasukListScreen extends StatefulWidget {
   const BarangMasukListScreen({super.key});
@@ -251,7 +252,20 @@ class _BarangMasukListScreenState extends State<BarangMasukListScreen> {
                             Text("Unit", style: TextStyle(fontSize: 11, color: Colors.grey[600])),
                           ],
                         ),
-                        onTap: () => _showOptions(item),
+                        onTap: () async {
+                          bool? refresh = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BarangMasukDetailScreen(data: item),
+                            ),
+                          );
+
+                          if (refresh == true) {
+                            setState(() => _loading = true);
+                            _fetchData();
+                          }
+                        },
+                        onLongPress: () => _showOptions(item),
                       ),
                     );
                   },
