@@ -12,9 +12,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         fontFamily: 'CrimsonPro',
+        textTheme: const TextTheme(
+          bodySmall: TextStyle(fontFamily: 'CrimsonPro'),
+          bodyMedium: TextStyle(fontFamily: 'CrimsonPro'),
+          bodyLarge: TextStyle(fontFamily: 'CrimsonPro'),
+          titleSmall: TextStyle(fontFamily: 'CrimsonPro'),
+          titleMedium: TextStyle(fontFamily: 'CrimsonPro'),
+          titleLarge: TextStyle(fontFamily: 'CrimsonPro'),
+        ),
       ),
+
       home: const SplashScreen(),
     );
   }

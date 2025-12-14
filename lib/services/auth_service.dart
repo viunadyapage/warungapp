@@ -109,13 +109,11 @@ class AuthService {
     return apiResponse;
   }
 
-  // ==========================================
-  // LOGOUT
-  // ==========================================
-  Future<bool> logout() async {
+  // logout
+  Future<ApiResponse> logout() async {
+    ApiResponse apiResponse = ApiResponse();
     try {
       String token = await _getToken();
-
       final response = await http.post(
         Uri.parse('$baseURL/logout'),
         headers: {
@@ -123,16 +121,19 @@ class AuthService {
           'Authorization': 'Bearer $token',
         },
       );
-
+      // HAPUS TOKEN DI HP (WAJIB)
+      await _removeToken();
       if (response.statusCode == 200) {
-        await _removeToken();
-        return true;
+        apiResponse.data = "Logout success";
+      } else {
+        apiResponse.error = "Gagal logout";
       }
-      return false;
     } catch (e) {
-      return false;
+      apiResponse.error = "Tidak dapat terhubung ke server";
     }
-  }
+  return apiResponse;
+}
+
 
   // ==========================================
   // UPDATE PROFILE

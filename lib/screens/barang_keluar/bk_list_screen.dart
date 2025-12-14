@@ -16,8 +16,6 @@ class _BKListScreenState extends State<BKListScreen> {
   bool loading = true;
   List<BarangKeluar> listBK = [];
 
-  final Color blueMain = const Color(0xFF95D1FC);
-  final Color blueDark = const Color(0xFF608BAA);
   final Color textDark = const Color(0xFF1F1D1A);
 
   @override
@@ -28,6 +26,8 @@ class _BKListScreenState extends State<BKListScreen> {
 
   void fetchBK() async {
     ApiResponse res = await BarangKeluarService().getBarangKeluarList();
+
+    if (!mounted) return;
 
     if (res.error == null) {
       setState(() {
@@ -43,44 +43,75 @@ class _BKListScreenState extends State<BKListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       body: Stack(
         children: [
-          // --------------------- BACKGROUND ----------------------
+          // BACKGROUND
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFF95D1FC),
-                  Colors.white,
-                ],
+                colors: [Color(0xFF95D1FC), Colors.white],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
           ),
 
-          Positioned(top: -40, right: -20, child: _bubble(150, 0.22)),
-          Positioned(bottom: -50, left: -10, child: _bubble(180, 0.18)),
-          Positioned(top: 200, left: -20, child: _bubble(80, 0.16)),
-
-          // --------------------- MAIN CONTENT ----------------------
           SafeArea(
             child: Column(
               children: [
-                _header(),
+                // HEADER
+                Container(
+                  margin: const EdgeInsets.all(16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+                  decoration: _glass(),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Barang Keluar",
+                        style: textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _circleButton(Icons.refresh, () {
+                            setState(() => loading = true);
+                            fetchBK();
+                          }),
+                          const SizedBox(width: 10),
+                          _circleButton(Icons.add, () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const BKCreateScreen()),
+                            ).then((value) {
+                              if (value == true) fetchBK();
+                            });
+                          }),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
 
+                // LIST
                 Expanded(
                   child: loading
                       ? const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        )
+                          child:
+                              CircularProgressIndicator(color: Colors.white))
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
                           itemCount: listBK.length,
                           itemBuilder: (context, i) {
                             final bk = listBK[i];
-                            return _bkCard(bk);
+                            return _bkCard(context, bk);
                           },
                         ),
                 ),
@@ -92,49 +123,9 @@ class _BKListScreenState extends State<BKListScreen> {
     );
   }
 
-  // ------------------ HEADER GLASS STYLE -------------------
-  Widget _header() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-      decoration: _glass().copyWith(borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Barang Keluar",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-              fontFamily: "Crimson Pro",
-            ),
-          ),
+  Widget _bkCard(BuildContext context, BarangKeluar bk) {
+    final textTheme = Theme.of(context).textTheme;
 
-          Row(
-            children: [
-              _circleButton(Icons.refresh, () {
-                setState(() => loading = true);
-                fetchBK();
-              }),
-              const SizedBox(width: 10),
-              _circleButton(Icons.add, () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const BKCreateScreen()),
-                ).then((value) {
-                  if (value == true) fetchBK();
-                });
-              }),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  // ------------------ BK CARD ----------------------
-  Widget _bkCard(BarangKeluar bk) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -147,51 +138,35 @@ class _BKListScreenState extends State<BKListScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 18),
         padding: const EdgeInsets.all(18),
-        decoration: _glass().copyWith(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.white.withOpacity(0.7),
-              blurRadius: 18,
-              offset: const Offset(-4, -4),
-            ),
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 18,
-              offset: const Offset(4, 4),
-            ),
-          ],
-        ),
+        decoration: _glass(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               bk.namaBarang ?? "-",
-              style: TextStyle(
-                fontSize: 20,
+              style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: textDark,
-                fontFamily: "Crimson Pro",
               ),
             ),
-            const SizedBox(height: 10),
-            Text("Jumlah: ${bk.jumlah}", style: const TextStyle(fontFamily: "Crimson Pro")),
-            Text("Alasan: ${bk.alasan}", style: const TextStyle(fontFamily: "Crimson Pro")),
-            Text("Tanggal: ${bk.tanggal}", style: const TextStyle(fontFamily: "Crimson Pro")),
+            const SizedBox(height: 8),
+            Text("Jumlah: ${bk.jumlah}"),
+            Text("Alasan: ${bk.alasan}"),
+            Text("Tanggal: ${bk.tanggal}"),
           ],
         ),
       ),
     );
   }
 
-  // ----------------- GLASS DECORATION -----------------
   BoxDecoration _glass() {
     return BoxDecoration(
       color: Colors.white.withOpacity(0.35),
-      border: Border.all(color: Colors.white.withOpacity(0.6), width: 1.2),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: Colors.white.withOpacity(0.6)),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1),
+          color: Colors.black.withOpacity(0.08),
           blurRadius: 20,
           offset: const Offset(3, 6),
         ),
@@ -199,26 +174,6 @@ class _BKListScreenState extends State<BKListScreen> {
     );
   }
 
-  // ----------------- BUBBLE -----------------
-  Widget _bubble(double size, double opacity) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(opacity),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.5),
-            blurRadius: 40,
-            spreadRadius: 10,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ----------------- CIRCLE BUTTON -----------------
   Widget _circleButton(IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -228,15 +183,8 @@ class _BKListScreenState extends State<BKListScreen> {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.45),
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(3, 3),
-            ),
-          ],
         ),
-        child: Icon(icon, color: Colors.black87, size: 22),
+        child: Icon(icon, color: Colors.black87),
       ),
     );
   }
